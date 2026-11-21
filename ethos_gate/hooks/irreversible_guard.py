@@ -5,7 +5,8 @@ A skeptic/verify pass before irreversible actions and before a session reports
 done. The hook is INERT unless the session arms it with HARNESS_VERIFY=1;
 normal interactive sessions are unaffected.
 
-PreToolUse: blocks irreversible Bash commands unless VERIFY_OK=1 is present.
+PreToolUse: blocks irreversible Bash commands unless this session already ran a
+test command (pytest, npm test, ...) or VERIFY_OK=1 is present.
 Stop: if the session edited files but no test command was observed, block stop.
 Optionally: if the session edited a designated UI/prod path, block stop
 unless a done-gate script was observed.
@@ -44,18 +45,24 @@ from pathlib import Path
 VERIFY_ENV = "HARNESS_VERIFY"
 OVERRIDE_TOKEN = "VERIFY_OK=1"
 
-STATE_DIR = Path(
-    os.environ.get(
-        "HARNESS_VERIFY_STATE_DIR",
-        os.path.expanduser("~/.ethos-gate/state"),
+def _state_dir() -> Path:
+    # Read at call time, not import time: a module-level binding froze the path
+    # before a caller (or a test's monkeypatch.setenv) could point it elsewhere.
+    return Path(
+        os.environ.get(
+            "HARNESS_VERIFY_STATE_DIR",
+            os.path.expanduser("~/.ethos-gate/state"),
+        )
     )
-)
-LOG_DIR = Path(
-    os.environ.get(
-        "ETHOS_LOG_DIR",
-        os.path.expanduser("~/.ethos-gate/logs"),
+
+
+def _log_dir() -> Path:
+    return Path(
+        os.environ.get(
+            "ETHOS_LOG_DIR",
+            os.path.expanduser("~/.ethos-gate/logs"),
+        )
     )
-)
 
 # Commands considered irreversible without verification.
 #
@@ -117,8 +124,8 @@ def _deny(reason: str) -> int:
 
 def _set_marker(session_id: str) -> None:
     try:
-        STATE_DIR.mkdir(parents=True, exist_ok=True)
-        (STATE_DIR / f"verify-ok-{session_id}.json").write_text(
+        _state_dir().mkdir(parents=True, exist_ok=True)
+        (_state_dir() / f"verify-ok-{session_id}.json").write_text(
             json.dumps({"ts": time.time()})
         )
     except Exception:
@@ -126,24 +133,24 @@ def _set_marker(session_id: str) -> None:
 
 
 def _has_marker(session_id: str) -> bool:
-    return (STATE_DIR / f"verify-ok-{session_id}.json").is_file()
+    return (_state_dir() / f"verify-ok-{session_id}.json").is_file()
 
 
 def _touch_marker(session_id: str, name: str) -> None:
     try:
-        STATE_DIR.mkdir(parents=True, exist_ok=True)
-        (STATE_DIR / f"{name}-{session_id}.json").write_text(json.dumps({"ts": time.time()}))
+        _state_dir().mkdir(parents=True, exist_ok=True)
+        (_state_dir() / f"{name}-{session_id}.json").write_text(json.dumps({"ts": time.time()}))
     except Exception:
         pass
 
 
 def _has_marker_named(session_id: str, name: str) -> bool:
-    return (STATE_DIR / f"{name}-{session_id}.json").is_file()
+    return (_state_dir() / f"{name}-{session_id}.json").is_file()
 
 
 def _task_log_lines(session_id: str):
     today = time.strftime("%Y-%m-%d")
-    log = LOG_DIR / f"{today}.md"
+    log = _log_dir() / f"{today}.md"
     if not log.exists():
         return []
     text = log.read_text(errors="ignore")
@@ -183,6 +190,11 @@ def handle_pretooluse(data: dict) -> int:
             _set_marker(sid)
             return 0
         if IRREVERSIBLE_RE.search(cmd):
+            # A test run earlier in this session (TEST_RE above) or a prior
+            # VERIFY_OK=1 wrote the verify-ok marker; honour it here, or the
+            # documented "unless the session has already run tests" never holds.
+            if _has_marker(sid):
+                return 0
             return _deny(f"irreversible command {cmd[:120]!r} needs verification first")
 
     return 0

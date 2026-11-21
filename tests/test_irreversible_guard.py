@@ -102,6 +102,19 @@ class TestHandlePreToolUse:
         result = handle_pretooluse(_pretooluse("Bash", command="pytest tests/"))
         assert result == 0
 
+    def test_push_allowed_after_tests_ran_same_session(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("HARNESS_VERIFY_STATE_DIR", str(tmp_path))
+        assert handle_pretooluse(_pretooluse("Bash", command="git push origin main")) == 2
+        assert handle_pretooluse(_pretooluse("Bash", command="pytest tests/")) == 0
+        assert handle_pretooluse(_pretooluse("Bash", command="git push origin main")) == 0
+
+    def test_tests_in_one_session_do_not_unlock_another(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("HARNESS_VERIFY_STATE_DIR", str(tmp_path))
+        assert handle_pretooluse(_pretooluse("Bash", command="pytest tests/")) == 0
+        other = _pretooluse("Bash", command="git push origin main")
+        other["session_id"] = "other-sid"
+        assert handle_pretooluse(other) == 2
+
     def test_read_tool_returns_0(self):
         assert handle_pretooluse(_pretooluse("Read", file_path="/tmp/file.txt")) == 0
 
