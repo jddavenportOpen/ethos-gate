@@ -52,7 +52,7 @@ any tests. When the code was buggy, the operator discovered it only in productio
 
 The agent wasn't lazy; it simply had no gate requiring verification before stopping.
 
-**Gate built:** `irreversible_guard.py` Stop handler, if the session edited files but
+**Gate built:** `irreversible_guard.py` Stop handler: if the session edited files but
 no test command was observed in the session, the Stop event is blocked until the agent
 runs tests (or explicitly overrides with `VERIFY_OK=1`).
 
@@ -86,7 +86,7 @@ simultaneously.
 untrusted email bodies AND send outbound). But several were accidental trifectas
 with no documented controls.
 
-**Gate built:** `trifecta.py` audit scanner, weekly sweep classifies all agent
+**Gate built:** `trifecta.py` audit scanner: a weekly sweep classifies all agent
 definitions, flags accidental trifectas, and verifies that EXPLICIT trifectas
 have documented controls. "BLIND" (could not read a file) is treated as a failure,
 not a skip.

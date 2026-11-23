@@ -2,7 +2,7 @@
 
 > "An agent can be fully compliant with every individual security rule and still be a data exfiltration path."
 
-The **lethal trifecta** is [Simon Willison's name](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/) for it, from June 2025. It is a risk that comes from a combination, and it shows up when a single agent simultaneously holds:
+Simon Willison named this the [lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/) in June 2025. It shows up when a single agent holds all three of these at once:
 
 1. **Leg 1, Private/credentialed data access**: the agent can read secrets, PII, API keys, vault contents, or credential stores.
 

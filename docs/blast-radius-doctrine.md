@@ -9,14 +9,14 @@ Not all actions carry equal risk. Applying uniform maximum scrutiny to everythin
 ## The Three Axes
 
 **Reversibility**: Can the action be undone?
-- ✅ Reversible: file edit, test run, local build, read operation
-- ⚠️ Hard to reverse: database migration, published artifact, cross-service API call
-- ❌ Irreversible: email sent, social post published, prod deploy, data deleted, money spent
+- Reversible: file edit, test run, local build, read operation
+- Hard to reverse: database migration, published artifact, cross-service API call
+- Irreversible: email sent, social post published, prod deploy, data deleted, money spent
 
 **Scope**: Who is affected?
-- 🔒 Local: only the current session and its filesystem
-- 🔗 Internal: other services or agents within the operator's system
-- 🌐 External: third parties, the public internet, other people's systems
+- Local: only the current session and its filesystem
+- Internal: other services or agents within the operator's system
+- External: third parties, the public internet, other people's systems
 
 **Multiplier**: How many targets?
 - Single: one email, one PR, one row deleted
