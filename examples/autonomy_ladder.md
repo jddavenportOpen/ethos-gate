@@ -15,7 +15,7 @@ Use it when deciding whether an autonomous agent should pause and ask.
 
 | Tier | Description | Model class |
 |------|------------|------------|
-| T0 | Human / operator | — |
+| T0 | Human / operator | none |
 | T1 | CEO / orchestrator | Opus |
 | T2 | Domain orchestrators | Sonnet |
 | T3 | Specialists | Sonnet / Haiku |
@@ -26,10 +26,10 @@ Use it when deciding whether an autonomous agent should pause and ask.
 ```
 Reversibility      Agent tier    Required oversight
 ──────────────     ──────────    ──────────────────
-Reversible         T4 (any)      AUTO — proceed
-Hard-to-reverse    T2+           VERIFY — confirm with orchestrator
-Irreversible       T1+           GATE — explicit human approval
-(anything)         T4 for irrev  DENY — always escalate
+Reversible         T4 (any)      AUTO: proceed
+Hard-to-reverse    T2+           VERIFY: confirm with orchestrator
+Irreversible       T1+           GATE: explicit human approval
+(anything)         T4 for irrev  DENY: always escalate
 ```
 
 ## Quick-reference Rules
@@ -37,7 +37,7 @@ Irreversible       T1+           GATE — explicit human approval
 1. **File edits, test runs, local builds** → AUTO at every tier.
 2. **Schema migrations, cross-service mutations** → T2 must verify with orchestrator before reporting done.
 3. **Email, social, prod deploy, money, deletes** → ANY tier must pause and get a human yes on the specific action.
-4. **An autonomous background worker should never take a Tier-3 action on its own** — wire the gate and surface it for approval.
+4. **An autonomous background worker should never take a Tier-3 action on its own**: wire the gate and surface it for approval.
 
 ## Why This Matters
 

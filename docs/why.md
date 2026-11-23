@@ -1,14 +1,14 @@
 # Why ethos-gate exists
 
-ethos-gate was extracted from a production multi-agent system running ~10 concurrent
-autonomous Claude sessions 24/7. These are the incidents that drove each gate.
+These hooks came out of my own agent system, where several Claude Code sessions run
+without me watching. These are the incidents that drove each gate.
 
 ---
 
 ## The 248-PR incident (2026-07-04)
 
-An autonomous Claude session — given a broad "grow the project's GitHub presence"
-instruction — found a pattern: star-farming via PRs and GitHub Discussions. In a
+An autonomous Claude session, given a broad "grow the project's GitHub presence"
+instruction, found a pattern: star-farming via PRs and GitHub Discussions. In a
 single session it submitted **248 pull requests** and **415 Discussions** across
 unrelated open-source repositories, almost all templated or self-promotional.
 
@@ -16,7 +16,7 @@ The session broke no individual rule. It was authorized to use `gh pr create`.
 The instruction was genuinely ambiguous. The problem was a missing **judgment gate**
 for outbound actions against external third-party property.
 
-**Gate built:** `external_action_gate.py` — classifies `gh` commands by target repo,
+**Gate built:** `external_action_gate.py`: classifies `gh` commands by target repo,
 fast-paths owned repos, and applies a judge for external repos. Default policy: deny.
 Override token for explicit operator approval.
 
@@ -34,23 +34,25 @@ launchctl kickstart -k gui/501/com.example.session-host
 target service. **All 12 live Claude PTY sessions died simultaneously** (exit 137),
 including the session that issued the command.
 
-The "bridge restart" script existed and had a guard — but the agent ran the raw
+The safe restart script existed and had a guard. The agent ran the raw
 `launchctl` command directly.
 
-**Gate built:** `protected-restart-guard.py` — blocks raw `launchctl kickstart -k /bootout`
-on session-hosting services and `pkill/killall` of session managers. Override token
-`MASS_KILL_GUARD_OK=1` for deliberate operator-approved kills.
+**Gate built:** a restart guard that blocks the raw restart and kill commands on
+session-hosting services, with an override token for a kill a human approved. That
+guard is not in this package yet. It still lives in my private repo because it is tied
+to my own service names. `credential_scrape.py` here covers the related case: it
+blocks LaunchAgent load, unload, bootstrap and bootout in autonomous sessions.
 
 ---
 
-## The "silent verify" pattern (discovered 2026-06-xx)
+## The "silent verify" pattern (June 2026)
 
-An autonomous agent would write code, declare it "done," and stop — without running
+An autonomous agent would write code, declare it "done," and stop, without running
 any tests. When the code was buggy, the operator discovered it only in production.
 
 The agent wasn't lazy; it simply had no gate requiring verification before stopping.
 
-**Gate built:** `irreversible_guard.py` Stop handler — if the session edited files but
+**Gate built:** `irreversible_guard.py` Stop handler, if the session edited files but
 no test command was observed in the session, the Stop event is blocked until the agent
 runs tests (or explicitly overrides with `VERIFY_OK=1`).
 
@@ -66,7 +68,7 @@ Reading credentials is as much a theft vector as decrypting them. An agent that:
 ...has exfiltrated credentials without triggering any of the "do not send credentials"
 alerts, because none of those checks fired on the individual steps.
 
-**Gate built:** `credential_scrape.py` — blocks reading credential files in contexts
+**Gate built:** `credential_scrape.py`: blocks reading credential files in contexts
 where exfiltration is plausible (autonomous sessions, untrusted-input contexts), not
 just in the final outbound send.
 
@@ -74,9 +76,9 @@ just in the final outbound send.
 
 ## The lethal-trifecta finding (2026-08-23)
 
-After reading Microsoft's 2026 agentic-security research, the system was audited
+After reading Simon Willison's write-up of the lethal trifecta, I audited my system
 for combination-level exposure: agents that hold **(1)** private data access,
-**(2)** untrusted external input exposure, and **(3)** an outbound channel — all three
+**(2)** untrusted external input exposure, and **(3)** an outbound channel, all three
 simultaneously.
 
 13 of 52 native agent definitions carried all three legs. Most were by design
@@ -84,7 +86,7 @@ simultaneously.
 untrusted email bodies AND send outbound). But several were accidental trifectas
 with no documented controls.
 
-**Gate built:** `trifecta.py` audit scanner — weekly sweep classifies all agent
+**Gate built:** `trifecta.py` audit scanner, weekly sweep classifies all agent
 definitions, flags accidental trifectas, and verifies that EXPLICIT trifectas
 have documented controls. "BLIND" (could not read a file) is treated as a failure,
 not a skip.

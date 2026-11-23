@@ -46,7 +46,7 @@ def main() -> int:
     sid = str(data.get("session_id", ""))[:8]
 
     # Gate 1: credential scrape (always on)
-    strict = os.environ.get("CLAWD_AUTONOMOUS", "") == "1"
+    strict = os.environ.get("ETHOS_AUTONOMOUS", "") == "1"
     sandbox = os.environ.get("ETHOS_SANDBOX", "") == "1"
     verdict = credential_evaluate(tool_name, tool_input, strict=strict, sandbox=sandbox)
     if verdict.blocked:

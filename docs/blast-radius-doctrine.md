@@ -8,17 +8,17 @@ Not all actions carry equal risk. Applying uniform maximum scrutiny to everythin
 
 ## The Three Axes
 
-**Reversibility** — Can the action be undone?
+**Reversibility**: Can the action be undone?
 - ✅ Reversible: file edit, test run, local build, read operation
 - ⚠️ Hard to reverse: database migration, published artifact, cross-service API call
 - ❌ Irreversible: email sent, social post published, prod deploy, data deleted, money spent
 
-**Scope** — Who is affected?
+**Scope**: Who is affected?
 - 🔒 Local: only the current session and its filesystem
 - 🔗 Internal: other services or agents within the operator's system
 - 🌐 External: third parties, the public internet, other people's systems
 
-**Multiplier** — How many targets?
+**Multiplier**: How many targets?
 - Single: one email, one PR, one row deleted
 - Bulk: 100+ emails, 248 PRs to strangers' repos, a full-table DELETE
 
@@ -52,4 +52,4 @@ A gate that blocks `git log` is a gate that gets turned off. These belong in the
 - Local-only writes (write to /tmp, local file edits)
 - Operations clearly scoped to owned resources (git push to your own repo)
 
-The goal is friction proportional to risk — not friction as a general policy.
+The goal is friction in proportion to risk.

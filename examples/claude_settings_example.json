@@ -1,30 +1,15 @@
 {
-  "_comment": "Example claude_code_config.json (Claude Code user settings) wiring ethos-gate hooks.",
+  "_comment": "Example Claude Code settings (~/.claude/settings.json or .claude/settings.json) wiring ethos-gate through the single combined hook.",
 
   "hooks": {
     "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 /path/to/ethos_gate/hooks/irreversible_guard.py",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
-            "command": "python3 /path/to/ethos_gate/hooks/external_action_gate.py",
-            "timeout": 10000
-          }
-        ]
-      },
       {
         "matcher": ".*",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /path/to/ethos_gate/hooks/credential_scrape_hook.py",
-            "timeout": 3000
+            "command": "python3 /path/to/ethos-gate/examples/basic_hook.py",
+            "timeout": 15
           }
         ]
       }
@@ -34,8 +19,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /path/to/ethos_gate/hooks/irreversible_guard.py",
-            "timeout": 5000
+            "command": "python3 /path/to/ethos-gate/examples/basic_hook.py",
+            "timeout": 5
           }
         ]
       }
@@ -50,10 +35,11 @@
   },
 
   "_notes": [
-    "Replace /path/to/ethos_gate with the actual install path (e.g. site-packages or a local checkout).",
-    "HARNESS_VERIFY=1 arms the verify-before-done gate; omit it in interactive sessions where you do not want the gate.",
-    "ETHOS_OWNED_ORGS is a comma-separated list of GitHub org/user slugs you own — actions against these bypass the external-action judge.",
-    "ETHOS_PROD_PATH_PATTERN is an optional regex; if set, touching matching paths arms the done-gate check on Stop.",
-    "Hook timeouts are in milliseconds. A hook that times out FAILS OPEN (exit 0 = allow) by design."
+    "Replace /path/to/ethos-gate with the folder you cloned.",
+    "basic_hook.py does nothing unless HARNESS_VERIFY=1 is set. With it set, it runs the credential gate, the test-before-irreversible gate and the GitHub gate, and the first deny wins.",
+    "Set ETHOS_AUTONOMOUS=1 for unattended sessions to turn on the stricter credential tier.",
+    "ETHOS_OWNED_ORGS is a comma-separated list of GitHub org or user names you own. Actions against these skip the external-action check.",
+    "ETHOS_PROD_PATH_PATTERN is an optional regex. If set, touching a matching path means Stop is blocked until a done-gate script has run.",
+    "Hook timeouts are in seconds. A hook that times out lets the command through (exit 0) by design."
   ]
 }

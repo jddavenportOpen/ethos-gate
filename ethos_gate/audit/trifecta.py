@@ -1,6 +1,7 @@
 """trifecta.py — Lethal-trifecta combination-exposure audit for agent systems.
 
-Terminology from Microsoft's 2026 agentic-security research:
+Term coined by Simon Willison (June 2025,
+https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/):
 
   Leg 1 — Private/credentialed data access
            The agent can read secrets, PII, proprietary data, or credential stores.

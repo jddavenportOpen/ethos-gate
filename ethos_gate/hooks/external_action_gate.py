@@ -37,7 +37,7 @@ from typing import Optional, Protocol
 
 OVERRIDE_TOKEN = os.environ.get("ETHOS_OVERRIDE_TOKEN", "OUTWARD_ACTION_APPROVED=1")
 
-# Case-insensitive org/user prefixes treated as "owned" → full send.
+# Case-insensitive org/user prefixes treated as "owned": pushes and PRs there go through.
 # Add your own GitHub usernames and org slugs here.
 OWNED_ORGS: set[str] = set(
     s.lower()
@@ -82,7 +82,7 @@ class Verdict:
     meta: dict = field(default_factory=dict)
 
 
-ALLOW_VERDICT = Verdict("allow", "owned repo — full send")
+ALLOW_VERDICT = Verdict("allow", "owned repo: allowed")
 DENY_VERDICT = Verdict("deny", "fail-safe deny: judge unavailable or action blocked")
 
 
@@ -221,7 +221,7 @@ def evaluate(
 
     orgs = owned_orgs if owned_orgs is not None else OWNED_ORGS
     if governed.owner in orgs:
-        return Verdict("allow", f"owned org ({governed.owner}) — full send", governed)
+        return Verdict("allow", f"owned org ({governed.owner}): allowed", governed)
 
     judge = policy if policy is not None else DefaultDenyPolicy()
     return judge.judge(governed)

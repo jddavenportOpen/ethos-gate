@@ -1,0 +1,2 @@
+[console_scripts]
+ethos-trifecta = ethos_gate.audit.trifecta:main

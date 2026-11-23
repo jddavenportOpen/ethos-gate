@@ -10,14 +10,14 @@ Three independent tiers with ascending scope:
               dump tools. An autonomous loop that needs a stored password is
               broken by design; fix the loop, not the gate.
 
-  STRICT    — blocked in autonomous/cron sessions (CLAWD_AUTONOMOUS=1).
+  STRICT    — blocked in autonomous/cron sessions (ETHOS_AUTONOMOUS=1).
               A human-supervised interactive session may briefly read these
               for legit infra work, but an autonomous worker almost never
               has a legitimate reason to do so.
 
   SANDBOX   — blocked only for the bug-squash / autonomous fixer context,
               where untrusted code could be driving the tool calls.
-              Distinct from STRICT because CLAWD_AUTONOMOUS=1 is set by
+              Distinct from STRICT because ETHOS_AUTONOMOUS=1 is set by
               many legitimate loops that intentionally read .env files.
 
 The SANDBOX tier is opt-in at the call site: pass sandbox=True only for a
@@ -171,7 +171,7 @@ def evaluate(
     Args:
         tool_name:  The Claude tool name (e.g. "Bash", "Read", "Write", "Edit").
         tool_input: The tool's input dict as received from the hook event.
-        strict:     True when session is autonomous (CLAWD_AUTONOMOUS=1 or equivalent).
+        strict:     True when session is autonomous (ETHOS_AUTONOMOUS=1 or equivalent).
         sandbox:    True when session is in an untrusted-input / bug-squash context.
 
     Returns:

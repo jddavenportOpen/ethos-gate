@@ -1,11 +1,11 @@
 [build-system]
 requires = ["setuptools>=67", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "ethos-gate"
 version = "0.1.0"
-description = "Application-layer safety hooks for governing agentic Claude systems"
+description = "Claude Code hooks that block irreversible and outward-facing agent actions"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
